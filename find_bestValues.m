@@ -12,7 +12,7 @@ sorted_data = sortrows(unique_data,1);
 
 valuesFile = fopen('best_values.txt','w');
 
-for i = 1:1000
+for i = 1:40000
     for j = 2:3
        fprintf(valuesFile,'%f\t',sorted_data(i,j));
     end

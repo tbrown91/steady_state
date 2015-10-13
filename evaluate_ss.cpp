@@ -41,23 +41,19 @@ double calculate_chiSq(const double* nuc_prob,const double* cyt_prob,const int* 
 double test_parameters(const double alpha,const double beta,const double gamma,const double delta,int* nuc_data,int* cyt_data,const int tot_data){
   //For a range of paramter values, calcuate the probability distribution of nucleear and cytoplasmic RNA and calculate
   //the metric determining how well the parameters fit the data
-
   double nuc_prob[50], cyt_prob[50];
   double lambda_1 = alpha/beta;
   double lambda_2 = alpha/gamma;
   double lambda_3 = alpha/delta;
     //Calculate the probability distribution for the nuclear spots
   calculate_nucProb(lambda_1,lambda_2,nuc_prob);
-
   //Calculate the probability distribution for the cytoplasmic spots
   calculate_cytoProb(lambda_3,cyt_prob);
-
   //Normalise probabilities to the raw data
   for (int j=0;j<50;++j){
     nuc_prob[j] *= tot_data;
     cyt_prob[j] *= tot_data;
   }
-
   //Calculate the Chi-Square statistic for the given set of paramters
   double iteration_metric = calculate_chiSq(nuc_prob,cyt_prob,nuc_data,cyt_data);
   return iteration_metric;
@@ -96,24 +92,20 @@ int main(int argc, char* argv[]){
   cout << "First argument: " << argv[1] << endl;
   cout << "Second argument: " << argv[2] << endl;
   cout << "Third argument: " << argv[3] << endl;
-
   ifstream nucFile, cytFile;
   int nuc_data[50] = {143,33,4,5};
   int cyt_data[50] = {34,34,10,13,8,8,6,4,4,3,9,3,6,6,5,1,1,6,4,2,0,4,3,3,0,0,1,1,1,1,1,0,1,0,0,1,0,0,0,0,1};
   //read_data(argv[1],argv[2],nucFile,cytFile);
-
   //File to write results to
   ofstream outFile;
   outFile.open(argv[3]);
   //Write the file header
   outFile << "Chi_sq\talpha\tbeta\tgamma\tdelta" << endl;
-
   int tot_data = 0;
   for (int j=0;j<50;++j){
     tot_data += nuc_data[j];
   }
   cout << tot_data << endl;
-
   //Introduce parameters, these correspond to:
   //alpha = init x on / (on + off), the rate of transcription initiation
   //beta = elong, the rate of elongation
@@ -121,9 +113,9 @@ int main(int argc, char* argv[]){
   //delta = deg, the rate of degradation in the cytoplasm
   double alpha = 1;
   cout << "Percentage completed:" << endl;
-  for (double beta=0.01;beta<=2;beta+=0.01){
-    for (double gamma=0.01;gamma<=2;gamma+=0.01){
-      for (double delta=0.01;delta<=0.2;delta+=0.01){
+  for (double beta=0.01;beta<=1;beta+=0.01){
+    for (double gamma=0.01;gamma<=1;gamma+=0.01){
+      for (double delta=0.01;delta<=0.1;delta+=0.01){
         double chi_sq = test_parameters(alpha,beta,gamma,delta,nuc_data,cyt_data,tot_data);
         if (chi_sq != 0){
           outFile << chi_sq << "\t" << 1/beta << "\t" << 1/gamma << "\t" << 1/delta << endl;
@@ -132,8 +124,6 @@ int main(int argc, char* argv[]){
     }
     cout << (beta/2)*100 << endl;
   }
-
   outFile.close();
-
   return 0;
 }
