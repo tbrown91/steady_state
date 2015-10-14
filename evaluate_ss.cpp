@@ -58,9 +58,11 @@ double test_parameters(const double alpha,const double beta,const double gamma,c
   double iteration_metric = calculate_chiSq(nuc_prob,cyt_prob,nuc_data,cyt_data);
   return iteration_metric;
 }
-/*
-void read_data(string nuc_fileName, string cyt_fileName, ifstream nucFile, ifstream cytFile, int *nuc_data, int *cyt_data){
+
+void read_data(string nuc_fileName, string cyt_fileName, int *nuc_data, int *cyt_data){
   //Read the data from file for nuclear and cytoplasmic dots
+  ifstream nucFile;
+  ifstream cytFile;
   nucFile.open(nuc_fileName,ios_base::in);
   cytFile.open(cyt_fileName,ios_base::in);
   size_t sz;
@@ -69,38 +71,41 @@ void read_data(string nuc_fileName, string cyt_fileName, ifstream nucFile, ifstr
     int i = 0;
     while (nucFile.good()){
       getline(nucFile, line_contents);
-      nuc_data[i] = stoi(line_contents,sz);
-      ++i;
+      if (line_contents.size() > 0){
+        nuc_data[i] = stoi(line_contents,&sz);
+        ++i;
+      }
     }
     nucFile.close();
-  }else{cout << "Nuclear data file given is incorrect" << endl;return}
+  }else{cout << "Nuclear data file given is incorrect" << endl;}
   if (cytFile.is_open()){
     string line_contents;
     int i = 0;
     while (cytFile.good()){
       getline(cytFile, line_contents);
-      cyt_data[i] = stoi(line_contents,sz);
-      ++i;
+      if (line_contents.size() > 0){
+        cyt_data[i] = stoi(line_contents,&sz);
+        ++i;
+      }
     }
     cytFile.close();
   }else{cout << "Cytoplasmic data file given is incorrect" << endl;}
 }
-*/
+
 int main(int argc, char* argv[]){
 
   cout << "Test statement" << endl;
   cout << "First argument: " << argv[1] << endl;
   cout << "Second argument: " << argv[2] << endl;
   cout << "Third argument: " << argv[3] << endl;
-  ifstream nucFile, cytFile;
   int nuc_data[50] = {143,33,4,5};
   int cyt_data[50] = {34,34,10,13,8,8,6,4,4,3,9,3,6,6,5,1,1,6,4,2,0,4,3,3,0,0,1,1,1,1,1,0,1,0,0,1,0,0,0,0,1};
-  //read_data(argv[1],argv[2],nucFile,cytFile);
+  read_data(argv[1],argv[2],nuc_data,cyt_data);
   //File to write results to
   ofstream outFile;
   outFile.open(argv[3]);
   //Write the file header
-  outFile << "Chi_sq\talpha\tbeta\tgamma\tdelta" << endl;
+  outFile << "Chi_sq\t1/beta\t1/gamma\t1/delta" << endl;
   int tot_data = 0;
   for (int j=0;j<50;++j){
     tot_data += nuc_data[j];
@@ -113,16 +118,16 @@ int main(int argc, char* argv[]){
   //delta = deg, the rate of degradation in the cytoplasm
   double alpha = 1;
   cout << "Percentage completed:" << endl;
-  for (double beta=0.01;beta<=1;beta+=0.01){
-    for (double gamma=0.01;gamma<=1;gamma+=0.01){
-      for (double delta=0.01;delta<=0.1;delta+=0.01){
+  for (double beta=0.01;beta<=1;beta+=0.1){
+    for (double gamma=0.01;gamma<=1;gamma+=0.1){
+      for (double delta=0.01;delta<=0.1;delta+=0.1){
         double chi_sq = test_parameters(alpha,beta,gamma,delta,nuc_data,cyt_data,tot_data);
         if (chi_sq != 0){
           outFile << chi_sq << "\t" << 1/beta << "\t" << 1/gamma << "\t" << 1/delta << endl;
         }
       }
     }
-    cout << (beta/2)*100 << endl;
+    cout << (beta/1)*100 << endl;
   }
   outFile.close();
   return 0;
